@@ -49,14 +49,16 @@ export const setTokenAndCookie = async (username: string, res: Response) => {
     res.cookie('auth', randomToken, {
         httpOnly: true,
         maxAge: 1000 * 60 * 60 * 24 * 365,
+        expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 365),
         domain: 'localhost',
         sameSite: 'none',
-        secure: true,
+        secure: true
     }).cookie('k', csrfToken, {
         httpOnly: false,
         sameSite: 'lax',
-        domain: 'localhost',
+        domain: process.env.DOMAIN,
         maxAge: 1000 * 60 * 60 * 24 * 365 * 5,
-        secure: true,
+        expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 365 * 5),
+        secure: true
     });
 }

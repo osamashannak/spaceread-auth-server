@@ -15,7 +15,9 @@ App.use(bodyParser.json({
 }));
 
 App.use(function (req, res, next) {
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
     res.setHeader('Access-Control-Allow-Origin', 'http://localhost:5173'); // todo change this
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
     res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
     res.setHeader('Cache-Control', 'private, no-cache, s-maxage=0, max-age=0, must-revalidate, no-store');
@@ -23,10 +25,7 @@ App.use(function (req, res, next) {
     res.setHeader('X-XSS-Protection', '0');
     res.setHeader('X-Content-Type-Options', 'nosniff');
     res.setHeader('X-Frame-Options', 'SAMEORIGIN');
-    res.setHeader('Vary', 'Accept-Encoding');
     res.removeHeader("X-Powered-By");
-    res.removeHeader("Connection");
-    res.removeHeader("Keep-Alive");
     next();
 });
 

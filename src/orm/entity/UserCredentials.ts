@@ -10,7 +10,7 @@ export class UserCredentials {
     @Column()
     email!: string;
 
-    @Column()
+    @Column({default: false})
     verifiedEmail!: boolean;
 
     @Column()
