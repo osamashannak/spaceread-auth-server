@@ -4,7 +4,7 @@ import {UserCredentials} from "../orm/entity/UserCredentials";
 import {getHashedPassword, verifyHash} from "../hashing";
 import {LoginPayload, SignupPayload} from "../interfaces";
 import {setTokenAndCookie, validateSignupPayload} from "../utils";
-import {RegisteredUser, User} from "../orm/entity/User";
+import {User} from "../orm/entity/User";
 
 
 export const signup = async (req: Request, res: Response) => {
@@ -39,7 +39,7 @@ export const signup = async (req: Request, res: Response) => {
 
     await AppDataSource.getRepository(UserCredentials).save(user);
 
-    const dbUser = new RegisteredUser();
+    const dbUser = new User();
     dbUser.username = body.username;
     await AppDataSource.getRepository(User).save(dbUser);
 
