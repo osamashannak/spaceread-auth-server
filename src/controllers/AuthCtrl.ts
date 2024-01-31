@@ -78,6 +78,9 @@ export const login = async (req: Request, res: Response) => {
             success: false,
             message: "Invalid username or password."
         });
+
+        // todo implement rate limiting
+
         return;
     }
 

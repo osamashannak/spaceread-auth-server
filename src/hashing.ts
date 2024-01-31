@@ -27,7 +27,11 @@ export async function getHashedPassword(password: string, providedSalt?: Buffer 
 
         const peppered = crypto.createHmac('SHA256', PEPPER).update(password).digest('hex');
 
-        crypto.scrypt(peppered, salt, 64,  (err, derivedKey) => {
+        crypto.scrypt(peppered, salt, 64,  {
+            N: 2 ** 14,
+            r: 8,
+            p: 3,
+            }, (err, derivedKey) => {
             if (err) reject(err);
             resolve({salt: salt, hash: derivedKey})
         });
