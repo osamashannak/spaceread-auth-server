@@ -4,15 +4,25 @@ env.config();
 import express from 'express';
 import AuthRouter from "./routes/AuthRouter";
 import {createClient} from 'redis';
-import {AppDataSource} from "./orm/data-source";
 import bodyParser from "body-parser";
+import {createDataSource} from "@spaceread/database";
+import cookies from "cookie-parser";
 
 const App = express();
+
 export const RedisClient = createClient();
+export const AppDataSource = createDataSource({
+    host: process.env.POSTGRES_HOST,
+    username: process.env.POSTGRES_USER,
+    password: process.env.POSTGRES_PASSWORD,
+    database: process.env.POSTGRES_DB,
+    ssl: false,
+});
 
 App.use(bodyParser.json({
     limit: '1mb'
 }));
+App.use(cookies());
 
 App.use(function (req, res, next) {
     res.setHeader('Access-Control-Allow-Credentials', 'true');

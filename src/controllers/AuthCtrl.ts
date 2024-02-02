@@ -1,14 +1,16 @@
-import {Request, Response} from 'express';
-import {AppDataSource} from "../orm/data-source";
-import {UserCredentials} from "../orm/entity/UserCredentials";
+import {NextFunction, Request, Response} from 'express';
 import {getHashedPassword, verifyHash} from "../hashing";
 import {LoginPayload, SignupPayload} from "../interfaces";
 import {setTokenAndCookie, validateSignupPayload} from "../utils";
-import {User} from "../orm/entity/User";
+import {UserCredentials} from "@spaceread/database/entity/user/UserCredentials";
+import {AppDataSource} from "../app";
+import {User} from "@spaceread/database/entity/user/User";
 
+export const signup = async (req: Request, res: Response, next: NextFunction) => {
 
-export const signup = async (req: Request, res: Response) => {
     const body = req.body as SignupPayload;
+
+    console.log(body)
 
     if (!body.username || !body.password || !body.email) {
         res.status(400).send({
@@ -23,7 +25,7 @@ export const signup = async (req: Request, res: Response) => {
     if (!signUpValidation) {
         res.status(400).send({
             success: false,
-            message: "Invalid username or password or email"
+            message: "Invalid username or email or password."
         });
         return;
     }
@@ -40,16 +42,20 @@ export const signup = async (req: Request, res: Response) => {
     await AppDataSource.getRepository(UserCredentials).save(user);
 
     const dbUser = new User();
+
     dbUser.username = body.username;
     await AppDataSource.getRepository(User).save(dbUser);
 
     await setTokenAndCookie(user.username, res);
 
-    res.status(200).send();
+    res.locals.user = dbUser;
+
+    next();
 
 }
 
-export const login = async (req: Request, res: Response) => {
+export const login = async (req: Request, res: Response, next: NextFunction) => {
+
     const body = req.body as LoginPayload;
 
     console.log(body)
@@ -76,7 +82,7 @@ export const login = async (req: Request, res: Response) => {
     if (!passwordMatch) {
         res.status(401).send({
             success: false,
-            message: "Invalid username or password."
+            message: "Invalid username or email or password."
         });
 
         // todo implement rate limiting
@@ -84,12 +90,13 @@ export const login = async (req: Request, res: Response) => {
         return;
     }
 
-    user = user as UserCredentials;
+    await setTokenAndCookie(user!.username, res);
 
-    await setTokenAndCookie(user.username, res);
-
-    res.status(200).send({
-        redirect: "/"
+     res.locals.user = await AppDataSource.getRepository(User).findOne({
+        where: {username: user!.username}
     });
+
+    next();
+
 
 }

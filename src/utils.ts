@@ -1,9 +1,8 @@
 import {SignupPayload} from "./interfaces";
-import {AppDataSource} from "./orm/data-source";
-import {UserCredentials} from "./orm/entity/UserCredentials";
-import {RedisClient} from "./app";
+import {AppDataSource, RedisClient} from "./app";
 import crypto from "crypto";
 import {Response} from "express";
+import {UserCredentials} from "@spaceread/database/entity/user/UserCredentials";
 
 export async function validateSignupPayload(payload: SignupPayload): Promise<boolean> {
 
