@@ -5,29 +5,29 @@ import {Response} from "express";
 import {UserCredentials} from "@spaceread/database/entity/user/UserCredentials";
 
 export async function validateSignupPayload(payload: SignupPayload): Promise<boolean> {
+    return isUsernameValid(payload.id) && isEmailValid(payload.email) && isPasswordValid(payload.password);
+}
 
+export const isUsernameTaken = async (username: string) => {
     const credRepo = AppDataSource.getRepository(UserCredentials);
 
-    const usernameTaken = await credRepo.findOne({
-        where: {username: payload.username}
+    const userCheck = await credRepo.findOne({
+        where: {username: username.toLowerCase()}
     });
 
+    return !!userCheck;
+}
 
-    return usernameTaken == undefined && isEmailValid(payload.email) && isPasswordValid(payload.password);
+export const isUsernameValid = (username: string) => {
+    if (username.match(/[\u0080-\uFFFF]|\s/)) {
+        return false;
+    }
 
+    return !(username.length < 3 || username.length > 20);
 }
 
 export const isPasswordValid = (password: string): boolean => {
-    if (password.match(/[\u0080-\uFFFF]/)) {
-        return false;
-    }
-
-    if (password.match(/\s/)) {
-        return false;
-    }
-
     return !(password.length < 8 || password.length > 20);
-
 }
 
 export const isEmailValid = (email: string): boolean => {

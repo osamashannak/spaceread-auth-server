@@ -1,5 +1,5 @@
 export interface SignupPayload {
-    username: string;
+    id: string;
     password: string;
     email: string;
 }
@@ -7,4 +7,14 @@ export interface SignupPayload {
 export interface LoginPayload {
     id: string;
     password: string;
+}
+
+export interface GoogleLoginPayload {
+    credential: string;
+}
+
+export interface GoogleSignupPayload {
+    googleId: string;
+    email: string;
+    username: string;
 }

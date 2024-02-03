@@ -1,5 +1,5 @@
 import * as express from "express";
-import {login, signup} from "../controllers/AuthCtrl";
+import {completeGoogle, googleLogin, login, signup} from "../controllers/AuthCtrl";
 import {AppDataSource} from "../app";
 import {Guest} from "@spaceread/database/entity/user/Guest";
 import {User} from "@spaceread/database/entity/user/User";
@@ -29,17 +29,15 @@ AuthRouter.use(async (req, res, next) => {
         where: {token: guestId}
     });
 
-    if (!guest) {
+    /*if (!guest) {
         res.status(400).send({
             success: false,
             message: "Invalid username or email or password."
         });
         return;
-    }
+    }*/
 
     res.locals.guest = guest;
-
-    console.log("before")
 
     next();
 
@@ -55,20 +53,32 @@ async function moveGuestDataToUser(req: Request, res: Response) {
     const guest = res.locals.guest as Guest;
     const dbUser = res.locals.user as User;
 
-    for (const reviews of guest.reviews) {
-        reviews.user = dbUser;
-        await AppDataSource.getRepository(Review).save(dbUser);
+    if (!guest || !dbUser) {
+        return;
     }
 
-    for (const courseFiles of guest.courseFiles) {
-        courseFiles.user = dbUser;
-        await AppDataSource.getRepository(CourseFile).save(dbUser);
+    try {
+        for (const reviews of guest.reviews) {
+            reviews.user = dbUser;
+            await AppDataSource.getRepository(Review).save(dbUser);
+        }
+
+        for (const courseFiles of guest.courseFiles) {
+            courseFiles.user = dbUser;
+            await AppDataSource.getRepository(CourseFile).save(dbUser);
+        }
+    } catch (e) {
+        console.log(e);
+        return;
     }
 }
 
 
 AuthRouter.post("/login", login, moveGuestDataToUser);
 AuthRouter.post("/signup", signup, moveGuestDataToUser);
+
+AuthRouter.post("/googleLogin", googleLogin, moveGuestDataToUser);
+AuthRouter.post("/googleSignup", completeGoogle, moveGuestDataToUser);
 
 
 export default AuthRouter;
