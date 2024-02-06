@@ -68,15 +68,15 @@ export const googleLogin = async (req: Request, res: Response, next: NextFunctio
         }
 
         if (payload.given_name) {
-            user.givenName = payload.given_name;
+            user.given_name = payload.given_name;
         }
 
         if (payload.family_name) {
-            user.familyName = payload.family_name;
+            user.family_name = payload.family_name;
         }
 
         if (payload.email_verified) {
-            user.emailVerified = payload.email_verified;
+            user.email_verified = payload.email_verified;
         }
 
         await AppDataSource.getRepository(GoogleOauth).save(user);
@@ -111,7 +111,7 @@ export const googleLogin = async (req: Request, res: Response, next: NextFunctio
 
         const token = crypto.randomBytes(20).toString('hex');
 
-        user.signUpToken = token;
+        user.signup_token = token;
 
         await AppDataSource.getRepository(GoogleOauth).save(user);
 
@@ -153,7 +153,7 @@ export const completeGoogle = async (req: Request, res: Response, next: NextFunc
         where: {googleId: body.googleId}
     });
 
-    if (!user || user.email !== body.email || user.signUpToken !== signUpToken || !isUsernameValid(body.username)) {
+    if (!user || user.email !== body.email || user.signup_token !== signUpToken || !isUsernameValid(body.username)) {
         res.status(400).send({
             success: false,
             message: "Bad request."
@@ -174,7 +174,7 @@ export const completeGoogle = async (req: Request, res: Response, next: NextFunc
     const dbUser = new User();
 
     dbUser.username = body.username;
-    dbUser.googleOauth = user;
+    dbUser.google_oauth = user;
 
     await AppDataSource.getRepository(User).save(dbUser);
 
