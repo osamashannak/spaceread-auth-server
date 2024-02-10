@@ -16,7 +16,6 @@ export const AppDataSource = createDataSource({
     username: process.env.POSTGRES_USER,
     password: process.env.POSTGRES_PASSWORD,
     database: process.env.POSTGRES_DB,
-    ssl: false,
 });
 
 App.use(bodyParser.json({
@@ -26,7 +25,7 @@ App.use(cookies());
 
 App.use(function (req, res, next) {
     res.setHeader('Access-Control-Allow-Credentials', 'true');
-    res.setHeader('Access-Control-Allow-Origin', 'http://localhost:5173'); // todo change this
+    res.setHeader('Access-Control-Allow-Origin', 'https://spaceread.net'); // todo change this
     res.setHeader('Access-Control-Allow-Credentials', 'true');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
     res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');

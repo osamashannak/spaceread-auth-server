@@ -1,6 +1,6 @@
 import * as express from "express";
 import {completeGoogle, googleLogin, login, signup} from "../controllers/AuthCtrl";
-import {AppDataSource} from "../app";
+import {AppDataSource, RedisClient} from "../app";
 import {Guest} from "@spaceread/database/entity/user/Guest";
 import {User} from "@spaceread/database/entity/user/User";
 import {Review} from "@spaceread/database/entity/professor/Review";
@@ -12,8 +12,12 @@ const AuthRouter = express.Router();
 AuthRouter.use(async (req, res, next) => {
 
     if (req.cookies.auth) {
+        const profile = await RedisClient.get(req.cookies.auth);
 
-        // todo check if the cookie is valid
+        if (!profile) {
+            res.clearCookie("auth");
+            next();
+        }
 
         res.status(200).send({
             success: true,
@@ -29,13 +33,13 @@ AuthRouter.use(async (req, res, next) => {
         where: {token: guestId}
     });
 
-    /*if (!guest) {
+    if (!guest) {
         res.status(400).send({
             success: false,
             message: "Invalid username or email or password."
         });
         return;
-    }*/
+    }
 
     res.locals.guest = guest;
 
@@ -63,7 +67,7 @@ async function moveGuestDataToUser(req: Request, res: Response) {
             await AppDataSource.getRepository(Review).save(dbUser);
         }
 
-        for (const courseFiles of guest.courseFiles) {
+        for (const courseFiles of guest.course_files) {
             courseFiles.user = dbUser;
             await AppDataSource.getRepository(CourseFile).save(dbUser);
         }
