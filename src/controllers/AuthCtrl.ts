@@ -133,6 +133,8 @@ export const googleLogin = async (req: Request, res: Response, next: NextFunctio
         });
 
     }
+
+
 }
 
 export const completeGoogle = async (req: Request, res: Response, next: NextFunction) => {
@@ -286,6 +288,5 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
     });
 
     next();
-
 
 }

@@ -9,12 +9,25 @@ import {Request, Response} from "express";
 
 const AuthRouter = express.Router();
 
+export interface RedisSession {
+    username: string,
+    csrfToken: string,
+    expiration: number
+}
+
 AuthRouter.use(async (req, res, next) => {
 
     if (req.cookies.auth) {
         const profile = await RedisClient.get(req.cookies.auth);
 
         if (!profile) {
+            res.clearCookie("auth");
+            next();
+        }
+
+        const parsedProfile= JSON.parse(<string>profile) as RedisSession;
+
+        if (parsedProfile.expiration < Date.now()) {
             res.clearCookie("auth");
             next();
         }
@@ -36,7 +49,7 @@ AuthRouter.use(async (req, res, next) => {
     if (!guest) {
         res.status(400).send({
             success: false,
-            message: "Invalid username or email or password."
+            message: "Bad request. Refresh the page and try again."
         });
         return;
     }
